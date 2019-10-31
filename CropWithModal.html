@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="croppie.css" /> -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.min.css">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Croppie css -->
+    <!-- <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.min.css"> -->
+    <!-- Font Awesome 5 -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css"
+        integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+
+
+    <style type="text/css">
+        .nounderline,
+        .violet {
+            color: #7c4dff !important;
+        }
+
+        .btn-dark {
+            background-color: #7c4dff !important;
+            border-color: #7c4dff !important;
+        }
+
+        .btn-dark .file-upload {
+            width: 100%;
+            padding: 10px 0px;
+            position: absolute;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .profile-img img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+        }
+    </style>
+
+
+
+    <style>
+        label.cabinet {
+            display: block;
+            cursor: pointer;
+        }
+
+        label.cabinet input.file {
+            position: relative;
+            height: 100%;
+            width: auto;
+            opacity: 0;
+            -moz-opacity: 0;
+            filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+            margin-top: -30px;
+        }
+
+        #upload-demo {
+            width: 250px;
+            height: 250px;
+            padding-bottom: 25px;
+        }
+
+        figure figcaption {
+            position: absolute;
+            bottom: 0;
+            color: #fff;
+            width: 100%;
+            padding-left: 9px;
+            padding-bottom: 5px;
+            text-shadow: 0 0 10px #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <input type="file" class="item-img file center-block" name="file_photo" />
+            </div>
+            <div class="col-xs-12">
+                <label class="cabinet center-block">
+                    <figure>
+                        <img src="" class="gambar img-responsive img-thumbnail" id="item-img-output" />
+                    </figure>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cropImagePop" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div id="upload-demo" class="center-block"></div>
+
+                        <button class="btn rotate float-lef" data-deg="90">
+                            <i class="fas fa-undo"></i></button>
+                        <button class="btn rotate float-right" data-deg="-90">
+                            <i class="fas fa-redo"></i></button>
+                        <hr>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" id="cropImageBtn" class="btn btn-primary">Crop</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="croppie.js"></script>
+
+    <script>
+
+        // Start upload preview image
+
+        var $uploadCrop,
+            tempFilename,
+            rawImg,
+            imageId;
+
+        $uploadCrop = $('#upload-demo').croppie({
+            viewport: {
+                width: 150,
+                height: 200,
+            },
+            enableOrientation: true,
+            enforceBoundary: false,
+            enableExif: true
+        });
+
+        $('.item-img').on('change', function () {
+            imageId = $(this).data('id');
+            tempFilename = $(this).val();
+            $('#cancelCropBtn').data('id', imageId);
+            readFile(this);
+        });
+
+        function readFile(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('.upload-demo').addClass('ready');
+                    $('#cropImagePop').modal('show');
+                    rawImg = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+            else {
+                swal("Sorry - you're browser doesn't support the FileReader API");
+            }
+        }
+
+        $('#cropImagePop').on('shown.bs.modal', function () {
+            // alert('Shown pop');
+            $uploadCrop.croppie('bind', {
+                url: rawImg
+            }).then(function () {
+                console.log('jQuery bind complete');
+            });
+        });
+        $('#cropImageBtn').on('click', function (ev) {
+            $uploadCrop.croppie('result', {
+                type: 'base64',
+                format: 'jpeg',
+                size: { width: 150, height: 200 }
+            }).then(function (resp) {
+                $('#item-img-output').attr('src', resp);
+                $('#cropImagePop').modal('hide');
+            });
+        });
+        $(".rotate").on("click", function () {
+            $uploadCrop.croppie('rotate', parseInt($(this).data('deg')));
+        });
+
+    </script>
+</body>
+
+</html>
